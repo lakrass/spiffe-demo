@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tls-client
+  namespace: default
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tls-client
+  namespace: default
+  labels:
+    app: tls-client
+    spiffe.io/spire-managed-identity: "true"
+spec:
+  serviceAccountName: tls-client
+  initContainers:
+    - name: fetch-svid
+      image: ghcr.io/spiffe/spire-agent:1.15.3
+      command:
+        - /opt/spire/bin/spire-agent
+      args:
+        - api
+        - fetch
+        - x509
+        - -socketPath
+        - /spiffe-workload-api/spire-agent.sock
+        - -write
+        - /svid-data
+      volumeMounts:
+        - name: spiffe-workload-api
+          mountPath: /spiffe-workload-api
+          readOnly: true
+        - name: svid-data
+          mountPath: /svid-data
+  containers:
+    - name: tls
+      image: alpine/openssl:3.5.8
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "TLS client will call the TLS server using mutual TLS..."
+          while true; do
+            echo "=== Calling tls-server at $(date -u '+%Y-%m-%d %H:%M:%SZ') ==="
+            printf '%s\r\n' \
+              'GET / HTTP/1.1' \
+              'Host: tls-server' \
+              'Connection: close' \
+              '' \
+              | openssl s_client \
+              -connect tls-server.default.svc.cluster.local:8443 \
+                  -cert /svid-data/svid.0.pem \
+                  -key /svid-data/svid.0.key \
+                  -CAfile /svid-data/bundle.0.pem \
+                  -verify_return_error \
+                  -quiet \
+                  | tr -d '\r' \
+                  | sed '/^$/q'
+            sleep 30
+          done
+      volumeMounts:
+        - name: svid-data
+          mountPath: /svid-data
+          readOnly: true
+  volumes:
+    - name: spiffe-workload-api
+      csi:
+        driver: "csi.spiffe.io"
+        readOnly: true
+    - name: svid-data
+      emptyDir: {}

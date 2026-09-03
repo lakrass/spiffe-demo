@@ -1,0 +1,33 @@
+# Created by https://www.toptal.com/developers/gitignore/api/helm,direnv,visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=helm,direnv,visualstudiocode
+
+### direnv ###
+.direnv
+.envrc
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/helm,direnv,visualstudiocode
+
+bundle.0.pem

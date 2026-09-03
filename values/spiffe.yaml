@@ -1,0 +1,17 @@
+global:
+  spire:
+    clusterName: spiffe-demo
+    trustDomain: example.org
+    namespaces:
+      create: false
+
+spire-server:
+  enabled: true
+  controllerManager:
+    enabled: true
+
+spire-agent:
+  enabled: true
+
+spiffe-csi-driver:
+  enabled: true

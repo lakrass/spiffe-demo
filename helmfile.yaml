@@ -1,0 +1,19 @@
+repositories:
+  - name: spiffe
+    url: https://spiffe.github.io/helm-charts-hardened
+
+releases:
+  - name: spire-crds
+    namespace: spire-server
+    chart: spiffe/spire-crds
+    version: 0.6.1
+    wait: true
+
+  - name: spire
+    namespace: spire-server
+    chart: spiffe/spire
+    version: 0.30.1
+    needs:
+      - spire-server/spire-crds
+    values:
+      - ./values/spiffe.yaml

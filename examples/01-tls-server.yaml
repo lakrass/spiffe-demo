@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tls-server
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tls-server
+  namespace: default
+spec:
+  selector:
+    app: tls-server
+  ports:
+    - name: https
+      port: 8443
+      targetPort: 8443
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tls-server
+  namespace: default
+  labels:
+    app: tls-server
+    spiffe.io/spire-managed-identity: "true"
+spec:
+  serviceAccountName: tls-server
+  initContainers:
+    - name: fetch-svid
+      image: ghcr.io/spiffe/spire-agent:1.15.3
+      command:
+        - /opt/spire/bin/spire-agent
+      args:
+        - api
+        - fetch
+        - x509
+        - -socketPath
+        - /spiffe-workload-api/spire-agent.sock
+        - -write
+        - /svid-data
+      volumeMounts:
+        - name: spiffe-workload-api
+          mountPath: /spiffe-workload-api
+          readOnly: true
+        - name: svid-data
+          mountPath: /svid-data
+  containers:
+    - name: tls
+      image: alpine/openssl:3.5.8
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "TLS server listening on port 8443..."
+          exec openssl s_server \
+            -accept 8443 \
+            -cert /svid-data/svid.0.pem \
+            -key /svid-data/svid.0.key \
+            -CAfile /svid-data/bundle.0.pem \
+            -Verify 1 \
+            -verify_return_error \
+            -www
+      volumeMounts:
+        - name: svid-data
+          mountPath: /svid-data
+          readOnly: true
+  volumes:
+    - name: spiffe-workload-api
+      csi:
+        driver: "csi.spiffe.io"
+        readOnly: true
+    - name: svid-data
+      emptyDir: {}
