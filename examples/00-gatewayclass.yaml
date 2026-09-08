@@ -1,0 +1,8 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy
+  annotations:
+    gatewayclass.kubernetes.io/is-default-class: "true"
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller

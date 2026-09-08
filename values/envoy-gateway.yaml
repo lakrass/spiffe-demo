@@ -1,0 +1,16 @@
+config:
+  envoyGateway:
+    envoyProxy:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          envoyService:
+            type: NodePort
+            patch:
+              type: StrategicMerge
+              value:
+                spec:
+                  ports:
+                    - name: https
+                      port: 443
+                      nodePort: 30443

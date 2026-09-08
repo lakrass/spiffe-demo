@@ -3,6 +3,19 @@ repositories:
     url: https://spiffe.github.io/helm-charts-hardened
 
 releases:
+  - name: envoy-gateway
+    namespace: envoy-gateway-system
+    chart: oci://docker.io/envoyproxy/gateway-helm
+    version: v1.9.1
+    wait: true
+    values:
+      - ./values/envoy-gateway.yaml
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        kubectlApply:
+          filename: ./examples/00-gatewayclass.yaml
+
   - name: spire-crds
     namespace: spire-server
     chart: spiffe/spire-crds
@@ -15,5 +28,7 @@ releases:
     version: 0.30.1
     needs:
       - spire-server/spire-crds
+      - envoy-gateway-system/envoy-gateway
+    disableValidation: true
     values:
       - ./values/spiffe.yaml
