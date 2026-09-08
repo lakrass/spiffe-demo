@@ -31,3 +31,5 @@
 # End of https://www.toptal.com/developers/gitignore/api/helm,direnv,visualstudiocode
 
 bundle.0.pem
+jwks.json
+svid.jwt
