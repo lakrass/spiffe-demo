@@ -2,6 +2,12 @@ global:
   spire:
     clusterName: spiffe-demo
     trustDomain: example.org
+    jwtIssuer: https://oidc-discovery.example.org
+    gatewayAPI:
+      gateway:
+        name: spire
+        namespace: spire-server
+        port: 443
     namespaces:
       create: false
 
@@ -15,3 +21,25 @@ spire-agent:
 
 spiffe-csi-driver:
   enabled: true
+
+gatewayAPI:
+  gateway:
+    enabled: true
+    className: envoy
+    allowedListenersNamespaces: All
+    allowedRoutesNamespaces: All
+
+spiffe-oidc-discovery-provider:
+  enabled: true
+  tls:
+    spire:
+      enabled: true
+  gatewayAPI:
+    enabled: true
+    host: oidc-discovery.example.org
+    listenerSet:
+      enabled: false
+    parentRefs:
+      - name: spire
+        namespace: spire-server
+        sectionName: base
