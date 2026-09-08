@@ -1,5 +1,5 @@
 {
-  inputs = { nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable"; };
+  inputs = { nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05"; };
 
   outputs = { self, nixpkgs }:
     let
@@ -24,6 +24,7 @@
                 helm-diff
                 helm-s3
                 helm-git
+                helm-unittest
               ];
             };
 
@@ -34,7 +35,7 @@
 
         in {
           default = pkgs.mkShell {
-            packages = with pkgs; [ kubectl openssl ];
+            packages = with pkgs; [ kind kubectl openssl step-cli ];
 
             buildInputs = [ wrapped-kubernetes-helm wrapped-helmfile ];
           };
