@@ -87,7 +87,8 @@ First extract Trust Bundle from the pod:
 
 ```bash
 kubectl exec tls-server -c tls -- \
-	cat /svid-data/bundle.0.pem > ./bundle.0.pem
+	cat /svid-data/bundle.0.pem \
+	> ./bundle.0.pem
 ```
 
 Then verify certificate chain:
